@@ -259,3 +259,132 @@ pre::-webkit-scrollbar-thumb:hover {
 body {
     padding-top: 60px;
 }
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+    /* Adjust main container padding */
+    .chat-container {
+        padding: 0.5rem;
+        gap: 0.5rem;
+        height: calc(100vh - 56px);
+    }
+    
+    /* Smaller navbar height on mobile */
+    .navbar {
+        height: 100px;
+    }
+    
+    body {
+        padding-top: 56px;
+    }
+    
+    /* Adjust response area padding */
+    .response-content {
+        padding: 0.75rem;
+    }
+    
+    /* Smaller font sizes on mobile */
+    body, .form-control, .btn {
+        font-size: 0.8rem !important;
+    }
+    
+    /* Adjust navbar brand size */
+    .navbar-brand {
+        font-size: 1rem !important;
+    }
+    
+    /* Make navbar text smaller */
+    .navbar .form-label {
+        font-size: 0.75rem !important;
+    }
+    
+    /* Adjust welcome icon */
+    .fs-1 {
+        font-size: 1.5rem !important;
+    }
+    
+    /* Smaller code fonts on mobile */
+    code, pre {
+        font-size: 0.75rem !important;
+    }
+    
+    /* Stack dropdown and label on mobile */
+    .d-flex.align-items-center {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.25rem;
+    }
+    
+    .d-flex.align-items-center .dropdown {
+        width: 100%;
+    }
+    
+    .d-flex.align-items-center .dropdown .btn {
+        width: 100%;
+        text-align: left;
+    }
+    
+    /* Adjust input area spacing */
+    .input-area .row {
+        margin: 0;
+    }
+    
+    .input-area .col-auto {
+        padding: 0.25rem;
+    }
+    
+    /* Smaller markdown content */
+    .markdown-content {
+        font-size: 0.8rem;
+    }
+    
+    .markdown-content h1 {
+        font-size: 1.25rem;
+    }
+    
+    .markdown-content h2 {
+        font-size: 1.1rem;
+    }
+    
+    .markdown-content h3 {
+        font-size: 1rem;
+    }
+    
+    .markdown-content p, .markdown-content li {
+        font-size: 0.8rem;
+    }
+    
+    /* Adjust table font size */
+    .markdown-content table {
+        font-size: 0.75rem;
+    }
+    
+    .markdown-content th, .markdown-content td {
+        padding: 0.25rem;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 576px) {
+    .chat-container {
+        padding: 0.25rem;
+    }
+    
+    .response-content {
+        padding: 0.5rem;
+    }
+    
+    /* Even smaller fonts for very small screens */
+    body, .form-control, .btn {
+        font-size: 0.75rem !important;
+    }
+    
+    .navbar-brand {
+        font-size: 0.9rem !important;
+    }
+    
+    /* Even smaller navbar text */
+    .navbar .form-label {
+        font-size: 0.7rem !important;
+    }
+}

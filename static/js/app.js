@@ -1,8 +1,31 @@
 let conversationHistory = [];
 const responseArea = document.getElementById('response');
 const promptInput = document.getElementById('prompt');
-const modelSelect = document.getElementById('modelSelect');
 const sendButton = document.getElementById('sendButton');
+
+// Model selection handling
+let selectedModelValue = 'gemma3:1b';
+const modelDropdown = document.getElementById('modelDropdown');
+const selectedModelSpan = document.getElementById('selectedModel');
+
+// Handle dropdown selection
+document.addEventListener('DOMContentLoaded', () => {
+    const dropdownItems = document.querySelectorAll('.dropdown-item[data-value]');
+    dropdownItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            selectedModelValue = e.target.getAttribute('data-value');
+            selectedModelSpan.innerHTML = e.target.innerHTML;
+        });
+    });
+});
+
+// Create a compatibility object for modelSelect
+const modelSelect = {
+    get value() {
+        return selectedModelValue;
+    }
+};
 
 // Send prompt on Enter (Shift+Enter for new line)
 promptInput.addEventListener('keydown', (e) => {
