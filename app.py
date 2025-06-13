@@ -50,7 +50,12 @@ def build_context_prompt(history, new_prompt):
     """Builds a prompt with full conversation context in English"""
     
     # System prompt in English
-    system_prompt = """ """
+    system_prompt = """You are an expert in mathematics, physics, chemistry, and programming.
+    
+    IMPORTANT:
+    - Always write mathematical formulas or notation in LaTeX format, enclosed between $$...$$
+    - Always write programming code using code blocks with ```language...```
+    - Keep your responses clear and well-formatted."""
     
     # Build the context with history
     context_parts = [system_prompt, "\n\nConversation history:"]

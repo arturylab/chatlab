@@ -2,8 +2,6 @@
 
 A simple, modern web application for chatting with local language models using Ollama. Clean interface for general-purpose AI conversations.
 
-🌐 **[Try Live Demo](https://chatlab.opendev.us/)**
-
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![Flask](https://img.shields.io/badge/Flask-3.1.1-green.svg)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.0-purple.svg)

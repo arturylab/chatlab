@@ -49,7 +49,7 @@ function renderWelcome() {
     responseArea.querySelector('.response-content').innerHTML = `
         <div class="text-muted text-center py-5 h-100 d-flex flex-column justify-content-center">
             <i class="bi bi-chat-square-dots fs-1 mb-3"></i>
-            <p class="mb-0">Hello! Ask me anything about programming.</p>
+            <p class="mb-0">Hello! Ask me anything about math, physics, chemistry & programming.</p>
         </div>
     `;
 }
@@ -58,12 +58,12 @@ function renderWelcome() {
 function renderConversation() {
     const content = conversationHistory.map(msg => {
         let parsedContent = msg.content
-            // [ ... ] → display math (block)
-            .replace(/\[([^\[\]]+)\]/g, (match, p1) => `$${p1}$`)
-            // ( ... ) with LaTeX → inline math if contains backslash
-            .replace(/\(([^\(\)\\]*\\[^\(\)]*)\)/g, (match, p1) => `\\(${p1}\\)`)
-            // ( ... ) separated by spaces → inline math
-            .replace(/\(\s+([^()]+)\s+\)/g, (match, p1) => `\\(${p1.trim()}\\)`)
+            // // [ ... ] → display math (block)
+            // .replace(/\[([^\[\]]+)\]/g, (match, p1) => `$${p1}$`)
+            // // ( ... ) with LaTeX → inline math if contains backslash
+            // .replace(/\(([^\(\)\\]*\\[^\(\)]*)\)/g, (match, p1) => `\\(${p1}\\)`)
+            // // ( ... ) separated by spaces → inline math
+            // .replace(/\(\s+([^()]+)\s+\)/g, (match, p1) => `\\(${p1.trim()}\\)`)
             // $...$ → inline math, but ignore $...$
             .replace(/(^|[^$])\$([^\$]+)\$(?!\$)/g, (match, pre, math) => `${pre}\\(${math}\\)`);
         if (msg.role === 'user') {
