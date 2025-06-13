@@ -88,48 +88,77 @@ function renderConversation() {
         hljs.highlightElement(block);
     });
     scrollToBottom();
-    // Render MathJax
-    if (window.MathJax) MathJax.typesetPromise();
+    // Render MathJax only when necessary
+    if (window.MathJax && content.includes('\\(')) {
+        MathJax.typesetPromise();
+    }
 }
 
-// Scroll response area to bottom
+// Variable for scroll throttling
+let scrollTimeout;
 function scrollToBottom() {
-    const contentDiv = responseArea.querySelector('.response-content');
-    contentDiv.scrollTop = contentDiv.scrollHeight;
+    if (scrollTimeout) return;
+    scrollTimeout = setTimeout(() => {
+        const contentDiv = responseArea.querySelector('.response-content');
+        contentDiv.scrollTop = contentDiv.scrollHeight;
+        scrollTimeout = null;
+    }, 50);
 }
 
 // Send prompt to backend
 function sendPrompt() {
     const prompt = promptInput.value.trim();
     if (!prompt) return;
+    
+    // Disable send button to avoid multiple requests
+    sendButton.disabled = true;
+    sendButton.innerHTML = '<i class="bi bi-hourglass-split"></i> <span class="ms-1">Sending...</span>';
+    
     conversationHistory.push({ role: 'user', content: prompt });
     renderConversation();
     promptInput.value = '';
-    promptInput.focus();
 
     // Show "thinking..." message
-    appendAssistantMessage('...');
+    appendAssistantMessage('Thinking...');
     const data = {
         prompt: prompt,
         model: modelSelect.value,
         history: conversationHistory
     };
 
-    // API call (streaming)
+    // API call (streaming) with better error handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+
     fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        signal: controller.signal
     }).then(response => {
-        if (!response.body) throw new Error('No response from server');
+        clearTimeout(timeoutId);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        if (!response.body) {
+            throw new Error('No response body from server');
+        }
+        
         const reader = response.body.getReader();
         let assistantMsg = '';
+        let updateCounter = 0;
+        
         function readChunk() {
             return reader.read().then(({ done, value }) => {
                 if (done) {
                     updateLastAssistantMessage(assistantMsg);
+                    // Re-enable button
+                    sendButton.disabled = false;
+                    sendButton.innerHTML = '<i class="bi bi-send"></i> <span class="ms-1">Send</span>';
+                    promptInput.focus();
                     return;
                 }
+                
                 const chunk = new TextDecoder().decode(value);
                 chunk.split('\n').forEach(line => {
                     if (line.startsWith('data:')) {
@@ -137,21 +166,46 @@ function sendPrompt() {
                             const data = JSON.parse(line.replace('data:', '').trim());
                             if (data.token) {
                                 assistantMsg += data.token;
-                                updateLastAssistantMessage(assistantMsg);
+                                // Update UI only every 5 chunks to reduce overhead
+                                updateCounter++;
+                                if (updateCounter % 3 === 0) {
+                                    updateLastAssistantMessage(assistantMsg);
+                                }
                             }
                             if (data.error) {
                                 updateLastAssistantMessage('❌ Error: ' + data.error);
+                                sendButton.disabled = false;
+                                sendButton.innerHTML = '<i class="bi bi-send"></i> <span class="ms-1">Send</span>';
+                                return;
                             }
-                        } catch (e) {}
+                            if (data.done) {
+                                updateLastAssistantMessage(assistantMsg);
+                                sendButton.disabled = false;
+                                sendButton.innerHTML = '<i class="bi bi-send"></i> <span class="ms-1">Send</span>';
+                                return;
+                            }
+                        } catch (e) {
+                            console.warn('Error parsing streaming data:', e);
+                        }
                     }
                 });
-                scrollToBottom();
+                
                 return readChunk();
             });
         }
         return readChunk();
     }).catch(err => {
-        updateLastAssistantMessage('❌ Error: ' + err.message);
+        clearTimeout(timeoutId);
+        console.error('Fetch error:', err);
+        let errorMessage = 'Connection error';
+        if (err.name === 'AbortError') {
+            errorMessage = 'Request timeout (2 minutes)';
+        } else if (err.message.includes('HTTP error')) {
+            errorMessage = err.message;
+        }
+        updateLastAssistantMessage('❌ Error: ' + errorMessage);
+        sendButton.disabled = false;
+        sendButton.innerHTML = '<i class="bi bi-send"></i> <span class="ms-1">Send</span>';
     });
 }
 
@@ -161,7 +215,7 @@ function appendAssistantMessage(content) {
     renderConversation();
 }
 
-// Update last assistant message (for streaming)
+// Update last assistant message (for streaming) - optimized
 function updateLastAssistantMessage(content) {
     for (let i = conversationHistory.length - 1; i >= 0; i--) {
         if (conversationHistory[i].role === 'assistant') {
